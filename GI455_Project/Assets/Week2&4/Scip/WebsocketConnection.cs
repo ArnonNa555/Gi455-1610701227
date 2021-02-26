@@ -18,6 +18,12 @@ public class WebsocketConnection : MonoBehaviour
 
     public InputField inputname;
     public InputField inputtext;
+    public InputField AcID;
+    public InputField Pass;
+    public InputField REAC1;
+    public InputField REACA2;
+    public InputField REPS1;
+    public InputField REPSA2;
     public Text Error;
     public Text SendT;
     public Text reText;
@@ -28,7 +34,18 @@ public class WebsocketConnection : MonoBehaviour
     public GameObject JRoom;
     public GameObject Leave;
     public GameObject Chat;
-    public GameObject BuildRoom; 
+    public GameObject BuildRoom;
+    public GameObject Loginni;
+    public GameObject Register;
+    public GameObject AC;
+    public GameObject PS;
+    public GameObject REAC;
+    public GameObject REACA;
+    public GameObject REPS;
+    public GameObject REPSA;
+    public GameObject POPUPRegis;
+    public GameObject INPUTREGIS;
+    public GameObject INPUTLOGIN;
 
     private string sendMess;
     private string reMess;
@@ -50,6 +67,8 @@ public class WebsocketConnection : MonoBehaviour
     public DelegateHandle OnCreateRoom;
     public DelegateHandle OnJoinRoom;
     public DelegateHandle OnLeaveRoom;
+    public DelegateHandle OnLogin;
+    public DelegateHandle OnRegister;
 
     // Start is called before the first frame update
     void Start()
@@ -97,29 +116,29 @@ public class WebsocketConnection : MonoBehaviour
         }
     }
 
-    ///public void send()
-   // {
+    //public void send()
+    //{
        // Chat = FieldChat.GetComponent<Text>().text;
        // Tex.GetComponent<Text>().text += Chat + "\n";
-       // Tex.GetComponent<Text>().alignment = TextAnchor.LowerRight;
-      //  inputField.text = null;
-       // websocket.Send(Chat);
+        //Tex.GetComponent<Text>().alignment = TextAnchor.LowerRight;
+        //inputField.text = null;
+        //websocket.Send(Chat);
     //}
 
-    //public void SendMess()
-   // {
-       // if (inputtext.text == "" || websocket.ReadyState != WebSocketState.Open)
-           // return;
+    public void SendMess()
+    {
+        if (inputtext.text == "" || websocket.ReadyState != WebSocketState.Open)
+            return;
 
-        //MessData messData = new MessData();
-       // messData.username = inputname.text;
-       // messData.message = inputtext.text;
+        MessData messData = new MessData();
+        messData.username = inputname.text;
+        messData.message = inputtext.text;
 
-        //string toJson = JsonUtility.ToJson(messData);
+        string toJson = JsonUtility.ToJson(messData);
 
-        //websocket.Send(toJson);
-        //inputtext.text = "";
-    //}
+        websocket.Send(toJson);
+        inputtext.text = "";
+    }
 
     public void OnMessage(object sender, MessageEventArgs messageEventArgs)
     {
@@ -138,6 +157,69 @@ public class WebsocketConnection : MonoBehaviour
         //websocket.Send("Conected");
     }
 
+
+    public void Logingin(string IP)
+    {
+        if (AcID.text == "" || Pass.text == "")
+        {
+            INPUTLOGIN.SetActive(true);
+        }
+        else
+        {
+            if (AcID.text == Pass.text)
+            {
+                IP = AcID.text + "#" + Pass.text;
+
+                SocketEvent socketEvent = new SocketEvent("Login", IP);
+
+                string toJsonStr = JsonUtility.ToJson(socketEvent);
+
+                websocket.Send(toJsonStr);
+
+                AC.SetActive(false);
+                PS.SetActive(false);
+                INPUTLOGIN.SetActive(false);
+            }
+            else
+            {
+
+            }
+        }
+    }
+
+    public void REGISTER(string NIPP)
+    {
+        if (REAC1.text == "" || REACA2.text == "" || REPS1.text == "" || REPSA2.text == "")
+        {
+            INPUTREGIS.SetActive(true);
+        }
+        else
+        {
+            if(REPS1.text == REPSA2.text)
+            {
+                NIPP = REAC1.text + "#" + REACA2.text + "#" + REPS1.text + "#" + REPSA2.text;
+
+                SocketEvent socketEvent = new SocketEvent("Register", NIPP);
+
+                string toJsonStr = JsonUtility.ToJson(socketEvent);
+
+                websocket.Send(toJsonStr);
+
+                Register.SetActive(false);
+                INPUTREGIS.SetActive(false);
+                //REAC.SetActive(false);
+                //REACA.SetActive(false);
+                //REPS.SetActive(false);
+                //REPSA.SetActive(false);
+            }
+            else
+            {
+                POPUPRegis.SetActive(true);
+            }
+
+        }
+
+    }
 
     public void CreateRoom(InputField RoomName)
     {
@@ -205,7 +287,16 @@ public class WebsocketConnection : MonoBehaviour
                 if (OnLeaveRoom != null)
                     OnLeaveRoom(receiveMessageData);
             }
-
+            else if(receiveMessageData.eventName == "Login")
+            {
+                if (OnLogin != null)
+                    OnLogin(receiveMessageData);
+            }
+            else if (receiveMessageData.eventName == "Register")
+            {
+                if (OnRegister != null)
+                    OnRegister(receiveMessageData);
+            }
             tempMessST = "";
         }
 
